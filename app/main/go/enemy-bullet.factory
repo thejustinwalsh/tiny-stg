@@ -1,0 +1,2 @@
+prototype: "/main/go/enemy-bullet.go"
+load_dynamically: false

@@ -1,0 +1,2 @@
+prototype: "/main/go/player-bullet.go"
+load_dynamically: false
