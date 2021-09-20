@@ -27,7 +27,7 @@ export default function* (b: Bullet): RunnerIterator {
   b.speed *= 4;
 
   // Home toward player
-  while (true) {
+  while (b.dead === false) {
     const { player } = yield;
     const dir = (player.pos - b.pos) as vmath.vector3;
     const length = vmath.length(dir);

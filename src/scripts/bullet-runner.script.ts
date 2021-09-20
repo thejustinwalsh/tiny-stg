@@ -28,7 +28,10 @@ export function init(this: Props): void {
 }
 
 export function update(this: Props, dt: number): void {
-  const [, height] = window.get_size();
+  const SCALE = 4; // TODO: get scale from camera
+  const [width, height] = window.get_size();
+  const sWidth = width / SCALE;
+  const sHeight = height / SCALE;
   const world: World = {
     player: {
       pos: vmath.vector3(0, height / 2, 0),
@@ -52,13 +55,27 @@ export function update(this: Props, dt: number): void {
     bullet.pos = (bullet.pos + bullet.dir * bullet.speed * dt) as vmath.vector3;
     go.set_position(bullet.pos, bullet.id);
 
-    // TODO: better bounds calculation
-    if (destroy || bullet.pos.y > height / 4 || bullet.life > 10) {
+    const PADDING = 25;
+    const MAX_LIFE = 30;
+    destroy =
+      destroy ||
+      bullet.pos.y > sHeight + PADDING ||
+      bullet.pos.y < -PADDING ||
+      bullet.pos.x > sWidth / 2 + PADDING ||
+      bullet.pos.x < -(sWidth / 2 + PADDING);
+    if (destroy || bullet.life > MAX_LIFE) {
       const dead = this.bullets[i];
+
       this.bullets[i] = this.bullets[this.bullets.length - 1];
       this.delay[i] = this.delay[this.delay.length - 1];
       this.bullets.pop();
       this.delay.pop();
+
+      dead.dead = true;
+      // Exhaust runner (needed if we recycle coroutines)
+      //const deadRunner = this.runners.get(dead.uuid);
+      //if (deadRunner) while (deadRunner.next(world)?.done !== true);
+      this.runners.delete(dead.uuid);
       go.delete(dead.id);
     }
   }
@@ -88,6 +105,7 @@ export function on_message(this: Props, message_id: hash, message: unknown, _sen
       dir: vmath.vector3(0, 1, 0),
       scale: vmath.vector3(1, 1, 1),
       life: 0,
+      dead: false,
     };
 
     this.bullets.push(bullet);

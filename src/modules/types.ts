@@ -8,6 +8,7 @@ export type Bullet = {
   scale: vmath.vector3;
   speed: number;
   life: number;
+  dead: boolean;
 };
 
 export type World = {
