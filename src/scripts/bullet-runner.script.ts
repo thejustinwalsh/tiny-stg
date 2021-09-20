@@ -28,6 +28,7 @@ export function init(this: Props): void {
 }
 
 export function update(this: Props, dt: number): void {
+  const start = socket.gettime();
   const SCALE = 4; // TODO: get scale from camera
   const [width, height] = window.get_size();
   const sWidth = width / SCALE;
@@ -80,7 +81,7 @@ export function update(this: Props, dt: number): void {
     }
   }
 
-  msg.post('/gui#debug', 'bullets', { bullets: this.bullets.length });
+  msg.post('/gui#debug', 'bullets', { bullets: this.bullets.length, run: (socket.gettime() - start) * 1000 });
 }
 
 export function on_message(this: Props, message_id: hash, message: unknown, _sender: url): void {
