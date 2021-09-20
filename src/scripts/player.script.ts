@@ -1,4 +1,5 @@
 import { DEFAULT } from '../modules/patterns';
+import * as camera from 'orthographic.camera';
 
 interface Props {
   player: string;
@@ -84,6 +85,8 @@ export function update(this: Props, dt: number): void {
 }
 
 interface InputAction {
+  x: number;
+  y: number;
   pressed: boolean;
   released: boolean;
 }
@@ -102,12 +105,22 @@ export function on_input(this: Props, actionId: hash, action: InputAction): void
     case hash('right'):
       this.input.x = 1;
       break;
+    case hash('touch'): {
+      const target = camera.screen_to_world(null, vmath.vector3(action.x, action.y, 0));
+      const dir = (target - go.get_position()) as vmath.vector3;
+      const length = vmath.length(dir);
+      if (math.abs(length) >= 2) {
+        this.input = (dir / length) as vmath.vector3;
+      } else {
+        this.input.x = this.input.y = 0;
+      }
+    }
+    // eslint-disable-next-line no-fallthrough
     case hash('fire'):
       {
         if (action.pressed) {
           this.firing = true;
           this.fireTimer = this.fireDelay;
-          //fire(go.get_position(), this.bulletRank, this.bulletType);
         } else if (action.released) {
           this.firing = false;
         }
